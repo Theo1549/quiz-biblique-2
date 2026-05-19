@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Biblique ✝️</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #F0D48A;
+    --dark: #1A0E2E;
+    --dark2: #2D1F4A;
+    --purple: #4A2C8A;
+    --cream: #FAF6EE;
+    --green: #2D7A4F;
+    --green-light: #D4EDDA;
+    --red: #8A2D2D;
+    --red-light: #EDCECE;
+    --white: #FFFFFF;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Lato', sans-serif;
+    background: var(--dark);
+    color: var(--cream);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background-image:
+      radial-gradient(ellipse at 20% 20%, rgba(74,44,138,0.4) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 80%, rgba(201,168,76,0.15) 0%, transparent 60%);
+  }
+
+  .container {
+    width: 100%;
+    max-width: 680px;
+  }
+
+  /* ====== ÉCRAN ACCUEIL ====== */
+  #screen-home {
+    text-align: center;
+    animation: fadeIn 0.6s ease;
+  }
+
+  .cross-symbol {
+    font-size: 56px;
+    display: block;
+    margin-bottom: 1rem;
+    filter: drop-shadow(0 0 20px rgba(201,168,76,0.5));
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 6vw, 3.2rem);
+    font-weight: 900;
+    color: var(--gold);
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 40px rgba(201,168,76,0.3);
+  }
+
+  .subtitle {
+    font-size: 1rem;
+    color: rgba(250,246,238,0.6);
+    font-weight: 300;
+    margin-bottom: 2.5rem;
+    letter-spacing: 0.05em;
+  }
+
+  .level-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 2rem;
+  }
+
+  .level-card {
+    background: rgba(255,255,255,0.05);
+    border: 1.5px solid rgba(201,168,76,0.2);
+    border-radius: 16px;
+    padding: 1.2rem 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .level-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.2s;
+    border-radius: 16px;
+  }
+
+  .level-card:hover { transform: translateY(-3px); border-color: var(--gold); }
+  .level-card.active { border-color: var(--gold); background: rgba(201,168,76,0.12); }
+  .level-card.active::before { opacity: 1; }
+
+  .level-icon { font-size: 2rem; display: block; margin-bottom: 8px; }
+  .level-name { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; color: var(--gold); display: block; margin-bottom: 4px; }
+  .level-desc { font-size: 0.72rem; color: rgba(250,246,238,0.5); display: block; }
+
+  .btn-start {
+    width: 100%;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    color: var(--dark);
+    border: none;
+    border-radius: 50px;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.03em;
+    box-shadow: 0 8px 30px rgba(201,168,76,0.3);
+  }
+
+  .btn-start:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(201,168,76,0.4); }
+  .btn-start:active { transform: translateY(0); }
+
+  /* ====== ÉCRAN JEU ====== */
+  #screen-game { display: none; animation: fadeIn 0.4s ease; }
+
+  .game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .q-info { font-size: 0.85rem; color: rgba(250,246,238,0.5); }
+  .score-badge {
+    background: rgba(201,168,76,0.15);
+    border: 1px solid rgba(201,168,76,0.3);
+    color: var(--gold);
+    padding: 4px 14px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+
+  .progress-track {
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 99px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+
+  .timer-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+  }
+
+  .timer-track {
+    flex: 1;
+    height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .timer-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 99px;
+    transition: width 0.9s linear, background 0.3s;
+    width: 100%;
+  }
+
+  .timer-fill.urgent { background: #E24B4A; }
+  .timer-num { font-size: 0.85rem; font-weight: 700; color: var(--gold); min-width: 24px; text-align: right; }
+
+  .level-pill {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 3px 12px;
+    border-radius: 50px;
+    margin-bottom: 1rem;
+  }
+
+  .pill-facile { background: rgba(45,122,79,0.2); color: #6FCF97; border: 1px solid rgba(45,122,79,0.4); }
+  .pill-intermediaire { background: rgba(201,168,76,0.15); color: var(--gold); border: 1px solid rgba(201,168,76,0.3); }
+  .pill-difficile { background: rgba(138,45,45,0.2); color: #EB5757; border: 1px solid rgba(138,45,45,0.4); }
+
+  .question-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .question-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    font-weight: 700;
+    color: var(--cream);
+    line-height: 1.5;
+    margin-bottom: 6px;
+  }
+
+  .question-ref {
+    font-size: 0.75rem;
+    color: rgba(201,168,76,0.6);
+    font-style: italic;
+  }
+
+  .choices { display: grid; gap: 10px; margin-bottom: 1rem; }
+
+  .choice-btn {
+    width: 100%;
+    text-align: left;
+    padding: 0.9rem 1.1rem;
+    border-radius: 12px;
+    border: 1.5px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    color: var(--cream);
+    font-family: 'Lato', sans-serif;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .choice-btn:hover:not(:disabled) {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.08);
+    transform: translateX(4px);
+  }
+
+  .choice-btn:disabled { cursor: default; transform: none; }
+
+  .choice-btn.correct {
+    border-color: var(--green);
+    background: rgba(45,122,79,0.2);
+    color: #6FCF97;
+  }
+
+  .choice-btn.wrong {
+    border-color: var(--red);
+    background: rgba(138,45,45,0.2);
+    color: #EB5757;
+  }
+
+  .choice-letter {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .explication {
+    background: rgba(45,122,79,0.12);
+    border-left: 3px solid var(--green);
+    border-radius: 0 12px 12px 0;
+    padding: 0.9rem 1rem;
+    font-size: 0.85rem;
+    color: rgba(250,246,238,0.75);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    display: none;
+  }
+
+  .btn-next {
+    width: 100%;
+    padding: 0.9rem;
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    color: var(--dark);
+    border: none;
+    border-radius: 12px;
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: none;
+    transition: all 0.2s;
+  }
+
+  .btn-next:hover { opacity: 0.9; transform: translateY(-1px); }
+
+  /* ====== RÉSULTATS ====== */
+  #screen-results {
+    display: none;
+    text-align: center;
+    animation: fadeIn 0.5s ease;
+  }
+
+  .trophy-big { font-size: 72px; display: block; margin-bottom: 1rem; animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  @keyframes pop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+
+  .result-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem, 5vw, 2.2rem);
+    font-weight: 900;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+  }
+
+  .result-score {
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: var(--cream);
+    margin-bottom: 0.5rem;
+    font-family: 'Playfair Display', serif;
+  }
+
+  .result-msg {
+    font-size: 1rem;
+    color: rgba(250,246,238,0.65);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .result-verse {
+    background: rgba(201,168,76,0.08);
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 16px;
+    padding: 1.2rem;
+    font-style: italic;
+    font-size: 0.9rem;
+    color: var(--gold-light);
+    line-height: 1.7;
+    margin-bottom: 2rem;
+  }
+
+  .btn-replay {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    color: var(--dark);
+    border: none;
+    border-radius: 50px;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 8px 30px rgba(201,168,76,0.3);
+  }
+
+  .btn-replay:hover { transform: translateY(-2px); }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .stars-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 1rem; font-size: 1.8rem; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ACCUEIL -->
+  <div id="screen-home">
+    <span class="cross-symbol">✝</span>
+    <h1>Quiz Biblique</h1>
+    <p class="subtitle">Testez vos connaissances de la Parole de Dieu</p>
+
+    <div class="level-grid">
+      <div class="level-card active" data-level="facile" onclick="selectLevel('facile')">
+        <span class="level-icon">🌱</span>
+        <span class="level-name">Facile</span>
+        <span class="level-desc">Débutant</span>
+      </div>
+      <div class="level-card" data-level="intermediaire" onclick="selectLevel('intermediaire')">
+        <span class="level-icon">📖</span>
+        <span class="level-name">Intermédiaire</span>
+        <span class="level-desc">Connaisseur</span>
+      </div>
+      <div class="level-card" data-level="difficile" onclick="selectLevel('difficile')">
+        <span class="level-icon">🔥</span>
+        <span class="level-name">Difficile</span>
+        <span class="level-desc">Théologien</span>
+      </div>
+    </div>
+
+    <button class="btn-start" onclick="startGame()">Commencer la partie ✦</button>
+  </div>
+
+  <!-- JEU -->
+  <div id="screen-game">
+    <div class="game-header">
+      <span class="q-info" id="q-info">Question 1 / 10</span>
+      <span class="score-badge" id="score-badge">Score : 0</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="timer-row">
+      <div class="timer-track"><div class="timer-fill" id="timer-fill"></div></div>
+      <span class="timer-num" id="timer-num">20</span>
+    </div>
+    <div id="level-pill"></div>
+    <div class="question-card">
+      <p class="question-text" id="question-text"></p>
+      <p class="question-ref" id="question-ref"></p>
+    </div>
+    <div class="choices" id="choices"></div>
+    <div class="explication" id="explication"></div>
+    <button class="btn-next" id="btn-next" onclick="nextQuestion()">Question suivante →</button>
+  </div>
+
+  <!-- RÉSULTATS -->
+  <div id="screen-results">
+    <span class="trophy-big" id="trophy">🏆</span>
+    <div class="stars-row" id="stars-row"></div>
+    <h2 class="result-title" id="result-title"></h2>
+    <div class="result-score" id="result-score"></div>
+    <p class="result-msg" id="result-msg"></p>
+    <div class="result-verse" id="result-verse"></div>
+    <button class="btn-replay" onclick="resetGame()">↺ Rejouer</button>
+  </div>
+
+</div>
+
+<script>
+const ALL_QUESTIONS = {
+  facile: [
+    { q: "Combien de jours Dieu a-t-il mis pour créer le monde ?", ref: "Genèse 1", choix: ["5 jours", "6 jours", "7 jours", "10 jours"], correct: 1, exp: "Dieu créa en 6 jours et se reposa le 7e jour, le sabbat." },
+    { q: "Dans quelle ville Jésus est-il né ?", ref: "Luc 2:4-7", choix: ["Nazareth", "Jérusalem", "Jéricho", "Bethléem"], correct: 3, exp: "Jésus est né à Bethléem, la ville de David." },
+    { q: "Combien d'apôtres Jésus avait-il ?", ref: "Matthieu 10:1-4", choix: ["10", "11", "14", "12"], correct: 3, exp: "Jésus avait 12 apôtres, représentant les 12 tribus d'Israël." },
+    { q: "Qui a baptisé Jésus ?", ref: "Matthieu 3:13-17", choix: ["Pierre", "Paul", "Élie", "Jean-Baptiste"], correct: 3, exp: "Jean-Baptiste a baptisé Jésus dans le Jourdain." },
+    { q: "Avec quoi David a-t-il vaincu Goliath ?", ref: "1 Samuel 17", choix: ["Une épée", "Une lance", "Ses poings", "Une fronde et une pierre"], correct: 3, exp: "David utilisa une fronde et une pierre pour abattre le géant Goliath." },
+    { q: "Combien de jours Jonas est-il resté dans le ventre du grand poisson ?", ref: "Jonas 1:17", choix: ["1 jour", "2 jours", "7 jours", "3 jours"], correct: 3, exp: "Jonas resta 3 jours et 3 nuits dans le ventre du poisson." },
+    { q: "Comment s'appelait la mère de Jésus ?", ref: "Luc 1:26-31", choix: ["Marthe", "Madeleine", "Élisabeth", "Marie"], correct: 3, exp: "Marie est la mère de Jésus, choisie par Dieu pour porter le Sauveur." },
+    { q: "Combien de commandements Dieu a-t-il donnés à Moïse ?", ref: "Exode 20", choix: ["5", "8", "12", "10"], correct: 3, exp: "Dieu a donné les 10 commandements à Moïse sur le mont Sinaï." },
+    { q: "Quel objet Noé a-t-il construit pour survivre au déluge ?", ref: "Genèse 6", choix: ["Un radeau", "Un bateau", "Une tour", "L'arche"], correct: 3, exp: "Dieu ordonna à Noé de construire une grande arche pour sauver sa famille et les animaux." },
+    { q: "Dans quel fleuve Jésus a-t-il été baptisé ?", ref: "Matthieu 3:13", choix: ["Le Nil", "L'Euphrate", "Le Tigre", "Le Jourdain"], correct: 3, exp: "Jésus a été baptisé dans le fleuve Jourdain par Jean-Baptiste." },
+    { q: "Qui était le frère de Moïse ?", ref: "Exode 4:14", choix: ["Caleb", "Josué", "Aaron", "Lévî"], correct: 2, exp: "Aaron était le frère de Moïse et servit de porte-parole devant le Pharaon." },
+    { q: "Combien de pains Jésus a-t-il utilisés pour nourrir 5000 personnes ?", ref: "Jean 6:9", choix: ["3", "7", "10", "5"], correct: 3, exp: "Jésus multiplia 5 pains et 2 poissons pour nourrir une foule de 5000 hommes." },
+    { q: "Quel est le premier livre de la Bible ?", ref: "Bible", choix: ["Exode", "Psaumes", "Matthieu", "Genèse"], correct: 3, exp: "La Genèse est le premier livre de la Bible, il décrit la création du monde." },
+    { q: "Quel est le dernier livre de la Bible ?", ref: "Bible", choix: ["Jude", "Hébreux", "Daniel", "Apocalypse"], correct: 3, exp: "L'Apocalypse (ou Révélation) est le dernier livre de la Bible, écrit par l'apôtre Jean." },
+    { q: "Qui a vendu Joseph à des marchands égyptiens ?", ref: "Genèse 37:28", choix: ["Son père Jacob", "Ses frères", "Des soldats", "Des pirates"], correct: 1, exp: "Les frères de Joseph, jaloux de lui, le vendirent à des marchands ismaélites pour 20 pièces d'argent." },
+    { q: "De quelle couleur était le manteau de Joseph offert par son père ?", ref: "Genèse 37:3", choix: ["Rouge", "Blanc", "Bleu", "De plusieurs couleurs"], correct: 3, exp: "Jacob offrit à son fils Joseph un manteau de plusieurs couleurs, symbole de sa préférence." },
+    { q: "Qui est le roi des Juifs qui cherchait à tuer Jésus à sa naissance ?", ref: "Matthieu 2:16", choix: ["César", "Pilate", "Hérode", "Caïphe"], correct: 2, exp: "Le roi Hérode ordonna le massacre des enfants de moins de 2 ans pour tuer le nouveau-né Jésus." },
+    { q: "Combien d'années Israël a-t-il erré dans le désert ?", ref: "Nombres 14:34", choix: ["20 ans", "50 ans", "10 ans", "40 ans"], correct: 3, exp: "À cause de leur incrédulité, les Israélites errèrent 40 ans dans le désert avant d'entrer en Canaan." },
+    { q: "Quel animal parla à Ève dans le jardin d'Éden ?", ref: "Genèse 3:1", choix: ["Un aigle", "Un lion", "Le serpent", "Un âne"], correct: 2, exp: "Le serpent, plus rusé que tous les animaux, tenta Ève en remettant en question la parole de Dieu." },
+    { q: "Comment s'appelait le père de Jésus sur terre ?", ref: "Matthieu 1:16", choix: ["Jean", "Pierre", "Joseph", "Simon"], correct: 2, exp: "Joseph, charpentier de Nazareth, était le père adoptif de Jésus et l'époux de Marie." },
+    { q: "Sur quelle montagne Moïse a-t-il reçu les 10 commandements ?", ref: "Exode 19:20", choix: ["Mont Carmel", "Mont Hermon", "Mont des Oliviers", "Mont Sinaï"], correct: 3, exp: "Dieu appela Moïse sur le mont Sinaï et lui remit les tables de la loi." },
+    { q: "Que portait Jésus sur la tête lors de la crucifixion ?", ref: "Matthieu 27:29", choix: ["Un voile", "Un casque", "Une couronne d'épines", "Un turban"], correct: 2, exp: "Les soldats posèrent sur la tête de Jésus une couronne d'épines pour le railler." },
+    { q: "Qui a trahi Jésus pour 30 pièces d'argent ?", ref: "Matthieu 26:15", choix: ["Pierre", "Thomas", "Barabbas", "Judas"], correct: 3, exp: "Judas Iscariote livra Jésus aux grands prêtres pour 30 pièces d'argent." },
+    { q: "En combien de jours Jésus est-il ressuscité après sa mort ?", ref: "Luc 24:7", choix: ["1 jour", "2 jours", "7 jours", "3 jours"], correct: 3, exp: "Jésus est ressuscité le troisième jour après sa crucifixion, comme il l'avait annoncé." },
+    { q: "Quel apôtre a renié Jésus trois fois ?", ref: "Luc 22:61", choix: ["Jean", "André", "Jacques", "Pierre"], correct: 3, exp: "Pierre renia Jésus trois fois avant le chant du coq, exactement comme Jésus l'avait prédit." },
+    { q: "Quel était le métier de Jésus avant son ministère ?", ref: "Marc 6:3", choix: ["Pêcheur", "Berger", "Charpentier", "Potier"], correct: 2, exp: "Jésus travaillait comme charpentier avec son père adoptif Joseph à Nazareth." },
+    { q: "Quelle mer Moïse a-t-il traversée avec le peuple d'Israël ?", ref: "Exode 14:21", choix: ["La mer Morte", "La mer Méditerranée", "La mer Noire", "La mer Rouge"], correct: 3, exp: "Moïse divisa la mer Rouge et le peuple d'Israël traversa à pied sec pour fuir l'Égypte." },
+    { q: "Quel est le verset le plus court de la Bible ?", ref: "Jean 11:35", choix: ["Dieu est bon.", "Priez sans cesse.", "Jésus pleura.", "Amen."], correct: 2, exp: "'Jésus pleura' (Jean 11:35) est le verset le plus court de la Bible en français." },
+    { q: "Qui était le premier roi d'Israël ?", ref: "1 Samuel 10:1", choix: ["David", "Saül", "Salomon", "Josué"], correct: 1, exp: "Saül fut sacré premier roi d'Israël par le prophète Samuel, sur demande du peuple." },
+    { q: "Combien de poissons restèrent après que Jésus eut nourri 5000 personnes ?", ref: "Matthieu 14:20", choix: ["5 paniers", "7 paniers", "3 paniers", "12 paniers"], correct: 3, exp: "Après le miracle, les disciples ramassèrent 12 paniers pleins de morceaux qui restaient." },
+  ],
+  intermediaire: [
+    { q: "Quel prophète a été transporté au ciel dans un char de feu ?", ref: "2 Rois 2:11", choix: ["Élisée", "Élie", "Ézéchiel", "Isaïe"], correct: 1, exp: "Élie fut emporté au ciel dans un char de feu, sous les yeux d'Élisée son successeur." },
+    { q: "Quel est le premier miracle de Jésus selon l'Évangile de Jean ?", ref: "Jean 2:1-11", choix: ["Guérir un aveugle", "Marcher sur l'eau", "Transformer l'eau en vin", "Ressusciter Lazare"], correct: 2, exp: "Aux noces de Cana, Jésus transforma l'eau en vin, révélant sa gloire pour la première fois." },
+    { q: "Combien de psaumes contient la Bible ?", ref: "Livre des Psaumes", choix: ["100", "120", "175", "150"], correct: 3, exp: "Le livre des Psaumes contient 150 psaumes, attribués principalement au roi David." },
+    { q: "Quelle femme a caché les espions d'Israël à Jéricho ?", ref: "Josué 2", choix: ["Déborah", "Rahab", "Ruth", "Dalila"], correct: 1, exp: "Rahab, prostituée de Jéricho, cacha les espions d'Israël et fut sauvée lors de la conquête." },
+    { q: "À quelle tribu d'Israël l'apôtre Paul appartenait-il ?", ref: "Philippiens 3:5", choix: ["Juda", "Lévi", "Dan", "Benjamin"], correct: 3, exp: "Paul était de la tribu de Benjamin, comme il le mentionne lui-même dans ses lettres." },
+    { q: "Combien de jours Jésus a-t-il jeûné dans le désert ?", ref: "Matthieu 4:2", choix: ["7 jours", "20 jours", "3 jours", "40 jours"], correct: 3, exp: "Jésus jeûna 40 jours et 40 nuits dans le désert, après quoi le diable le tenta." },
+    { q: "Quel livre de la Bible parle principalement de la souffrance d'un homme juste ?", ref: "Livre de Job", choix: ["Ecclésiaste", "Job", "Proverbes", "Lamentations"], correct: 1, exp: "Le livre de Job raconte l'histoire d'un homme juste qui souffre et interroge Dieu." },
+    { q: "Qui a écrit la majorité des épîtres du Nouveau Testament ?", ref: "Romains, Corinthiens...", choix: ["Pierre", "Jean", "Jacques", "Paul"], correct: 3, exp: "Paul a écrit 13 épîtres du Nouveau Testament, soit près de la moitié des livres du NT." },
+    { q: "Quel est le nom du jardin où Jésus a été arrêté ?", ref: "Matthieu 26:36", choix: ["Gethsémané", "Éden", "Siloé", "Des Oliviers"], correct: 0, exp: "C'est au jardin de Gethsémané que Jésus pria et fut arrêté par les soldats." },
+    { q: "Qui a remplacé Judas parmi les douze apôtres ?", ref: "Actes 1:26", choix: ["Barnabas", "Silas", "Matthias", "Timothée"], correct: 2, exp: "Matthias fut choisi par tirage au sort pour remplacer Judas Iscariote parmi les Douze." },
+    { q: "Quel apôtre a marché sur l'eau avec Jésus ?", ref: "Matthieu 14:29", choix: ["Jean", "André", "Jacques", "Pierre"], correct: 3, exp: "Pierre marcha sur l'eau mais commença à couler quand il douta. Jésus le sauva en tendant la main." },
+    { q: "Quelle femme du Nouveau Testament s'appelait Priscille ?", ref: "Actes 18:2", choix: ["Belle-mère de Pierre", "Fille de Jaïrus", "Épouse d'Aquilas", "Femme de Pilate"], correct: 2, exp: "Priscille et son mari Aquilas étaient des collaborateurs de Paul dans son œuvre missionnaire." },
+    { q: "De quoi était fait le vêtement de Jean-Baptiste ?", ref: "Marc 1:6", choix: ["Lin blanc", "Laine de brebis", "Poil de chameau", "Cuir de chèvre"], correct: 2, exp: "Jean-Baptiste portait un vêtement de poil de chameau et une ceinture de cuir autour des reins." },
+    { q: "Qui a interprété le songe du Pharaon en Égypte ?", ref: "Genèse 41", choix: ["Moïse", "Joseph", "Aaron", "Daniel"], correct: 1, exp: "Joseph interpréta le songe de Pharaon : 7 années d'abondance suivies de 7 années de famine." },
+    { q: "Quelle femme est présentée comme juge d'Israël dans le livre des Juges ?", ref: "Juges 4", choix: ["Rahab", "Abigaïl", "Déborah", "Miriam"], correct: 2, exp: "Déborah était prophétesse et juge d'Israël, elle mena Israël à la victoire contre Sisera." },
+    { q: "Quel roi d'Israël a construit le premier Temple de Jérusalem ?", ref: "1 Rois 6", choix: ["David", "Ézéchias", "Josias", "Salomon"], correct: 3, exp: "Salomon construisit le premier Temple de Jérusalem en 7 ans, pour abriter l'Arche d'Alliance." },
+    { q: "Combien de fils Jacob avait-il (fondateurs des 12 tribus) ?", ref: "Genèse 35:22-26", choix: ["10", "13", "11", "12"], correct: 3, exp: "Jacob eut 12 fils qui devinrent les ancêtres des 12 tribus d'Israël." },
+    { q: "Quel prophète a annoncé la venue d'un serviteur souffrant dans Ésaïe 53 ?", ref: "Ésaïe 53", choix: ["Jérémie", "Ézéchiel", "Daniel", "Ésaïe"], correct: 3, exp: "Ésaïe 53 décrit le Serviteur souffrant, une prophétie messianique accomplie par Jésus-Christ." },
+    { q: "Dans quelle ville Paul eut-il sa vision et fut-il converti ?", ref: "Actes 9:3", choix: ["Jérusalem", "Antioche", "Corinthe", "Sur le chemin de Damas"], correct: 3, exp: "Paul (alors Saul) fut aveuglé par une lumière et entendit la voix de Jésus sur le chemin de Damas." },
+    { q: "Combien de langues furent parlées à la Pentecôte ?", ref: "Actes 2:4-11", choix: ["7", "10", "12", "Plusieurs"], correct: 3, exp: "À la Pentecôte, le Saint-Esprit descendit et les disciples parlèrent en plusieurs langues étrangères." },
+    { q: "Quel livre de la Bible est une lettre d'amour poétique ?", ref: "Ancien Testament", choix: ["Proverbes", "Ecclésiaste", "Lamentations", "Cantique des Cantiques"], correct: 3, exp: "Le Cantique des Cantiques est un poème célébrant l'amour entre un homme et une femme." },
+    { q: "Quel disciple a demandé à voir les plaies de Jésus avant de croire à la résurrection ?", ref: "Jean 20:25", choix: ["Pierre", "Jean", "Philippe", "Thomas"], correct: 3, exp: "Thomas dit qu'il ne croirait que s'il voyait les marques des clous dans les mains de Jésus." },
+    { q: "Combien de livres contient le Nouveau Testament ?", ref: "Nouveau Testament", choix: ["21", "24", "30", "27"], correct: 3, exp: "Le Nouveau Testament contient 27 livres : 4 évangiles, les Actes, 21 épîtres et l'Apocalypse." },
+    { q: "Qui était le beau-père de Moïse et prêtre de Madian ?", ref: "Exode 3:1", choix: ["Aaron", "Caleb", "Josué", "Jéthro"], correct: 3, exp: "Jéthro, prêtre de Madian, était le beau-père de Moïse. C'est chez lui que Moïse vit le buisson ardent." },
+    { q: "Quelle est la signification du mot évangile ?", ref: "Du grec euangelion", choix: ["Parole de Dieu", "Lumière divine", "Alliance éternelle", "Bonne nouvelle"], correct: 3, exp: "Le mot évangile vient du grec 'euangelion' qui signifie 'bonne nouvelle'." },
+    { q: "Quel est le plus long chapitre de la Bible ?", ref: "Bible", choix: ["Genèse 1", "Jean 17", "Psaume 119", "Nombres 7"], correct: 2, exp: "Le Psaume 119 est le plus long chapitre de la Bible avec 176 versets sur la Parole de Dieu." },
+    { q: "Qui a écrit le livre des Actes des Apôtres ?", ref: "Actes 1:1", choix: ["Paul", "Pierre", "Jean", "Luc"], correct: 3, exp: "Luc, le médecin et compagnon de Paul, a écrit à la fois l'Évangile de Luc et les Actes des Apôtres." },
+    { q: "Dans quel livre trouve-t-on les Béatitudes ?", ref: "Nouveau Testament", choix: ["Marc 5", "Jean 4", "Luc 3", "Matthieu 5"], correct: 3, exp: "Les Béatitudes se trouvent dans le Sermon sur la montagne, en Matthieu 5:3-12." },
+    { q: "Quel fleuve Naaman le Syrien devait-il traverser pour être guéri de la lèpre ?", ref: "2 Rois 5:10", choix: ["Le Nil", "L'Euphrate", "Le Tigre", "Le Jourdain"], correct: 3, exp: "Élisée ordonna à Naaman de se plonger 7 fois dans le Jourdain pour être guéri de sa lèpre." },
+    { q: "Quel roi d'Israël était célèbre pour sa sagesse ?", ref: "1 Rois 4:29-30", choix: ["Roboam", "David", "Saül", "Salomon"], correct: 3, exp: "Dieu accorda à Salomon une sagesse incomparable. La reine de Saba vint de loin pour le rencontrer." },
+  ],
+  difficile: [
+    { q: "Quel était le nom hébreu de l'apôtre Paul avant sa conversion ?", ref: "Actes 9:1", choix: ["Barnabas", "Saul", "Silas", "Timothée"], correct: 1, exp: "Paul s'appelait Saul avant sa conversion spectaculaire sur le chemin de Damas." },
+    { q: "Combien de livres contient l'Ancien Testament (canon protestant) ?", ref: "Canon protestant", choix: ["27", "46", "66", "39"], correct: 3, exp: "L'Ancien Testament protestant comprend 39 livres, contre 27 pour le Nouveau Testament." },
+    { q: "Quel prophète a annoncé qu'une vierge concevrait et enfanterait Emmanuel ?", ref: "Ésaïe 7:14", choix: ["Jérémie", "Daniel", "Michée", "Ésaïe"], correct: 3, exp: "Ésaïe prophétisa : 'La vierge concevra et enfantera un fils, et on l'appellera Emmanuel.'" },
+    { q: "Comment s'appelait le père de Jean-Baptiste ?", ref: "Luc 1:5-13", choix: ["Zachée", "Siméon", "Joseph", "Zacharie"], correct: 3, exp: "Zacharie, prêtre de l'ordre d'Abia, reçut l'annonce de la naissance de son fils Jean par un ange." },
+    { q: "Quel est le dernier mot de l'Apocalypse ?", ref: "Apocalypse 22:21", choix: ["Grâce", "Alléluia", "Maranatha", "Amen"], correct: 3, exp: "Le dernier mot de la Bible est 'Amen', après la bénédiction finale de l'Apocalypse." },
+    { q: "Qui a interprété le songe du roi Nebucadnetsar sur la statue aux pieds d'argile ?", ref: "Daniel 2", choix: ["Ézéchiel", "Ésaïe", "Joseph", "Daniel"], correct: 3, exp: "Daniel interpréta le songe de Nebucadnetsar grâce à la révélation de Dieu, et fut élevé dans la cour." },
+    { q: "Combien de portes avait la Nouvelle Jérusalem selon l'Apocalypse ?", ref: "Apocalypse 21:12", choix: ["7", "10", "12", "24"], correct: 2, exp: "La Nouvelle Jérusalem avait 12 portes, 3 de chaque côté, portant les noms des 12 tribus d'Israël." },
+    { q: "Quel mot hébreu signifie 'le Seigneur pourvoit' et fut prononcé par Abraham ?", ref: "Genèse 22:14", choix: ["El Shaddaï", "Yahweh Rapha", "El Elyon", "Yahweh Jiré"], correct: 3, exp: "Après que Dieu fournit le bélier à la place d'Isaac, Abraham appela ce lieu 'Yahweh Jiré'." },
+    { q: "Quelle est la seule femme mentionnée dans la généalogie de Jésus en Matthieu 1 qui n'est pas nommée directement ?", ref: "Matthieu 1:6", choix: ["Marie", "Rahab", "Ruth", "La femme d'Urie"], correct: 3, exp: "Matthieu 1:6 mentionne 'celle qui avait été femme d'Urie' (Bethsabée) sans la nommer directement." },
+    { q: "Combien d'années dura le règne du roi David sur tout Israël ?", ref: "2 Samuel 5:4", choix: ["20 ans", "30 ans", "40 ans", "50 ans"], correct: 2, exp: "David régna 40 ans en tout : 7 ans à Hébron sur Juda, puis 33 ans à Jérusalem sur tout Israël." },
+    { q: "Quel est le nom du geôlier de Philippes que Paul et Silas convertirent ?", ref: "Actes 16:27-34", choix: ["Nicodème", "Corneille", "Zosime", "Il n'est pas nommé"], correct: 3, exp: "La Bible ne donne pas le nom du geôlier de Philippes. Il se convertit après un tremblement de terre." },
+    { q: "Quel roi d'Israël fut emmené à Babylone avec un crochet dans le nez selon 2 Chroniques ?", ref: "2 Chroniques 33:11", choix: ["Josias", "Ézéchias", "Manassé", "Jojakim"], correct: 2, exp: "Manassé, l'un des rois les plus mauvais de Juda, fut emmené captif à Babylone mais se repentit plus tard." },
+    { q: "Dans quelle ville Paul fut-il lapidé et laissé pour mort ?", ref: "Actes 14:19", choix: ["Éphèse", "Corinthe", "Lystre", "Thessalonique"], correct: 2, exp: "À Lystre, des Juifs d'Antioche et d'Iconium poussèrent la foule à lapider Paul, qu'ils laissèrent pour mort." },
+    { q: "Quel ange annonça la naissance de Jésus à Marie ?", ref: "Luc 1:26", choix: ["Raphaël", "Michel", "Uriel", "Gabriel"], correct: 3, exp: "L'ange Gabriel fut envoyé par Dieu à Nazareth pour annoncer à Marie qu'elle concevrait le Fils de Dieu." },
+    { q: "Combien de femmes étaient présentes à la tombe lors de la résurrection selon Marc 16 ?", ref: "Marc 16:1", choix: ["1", "2", "4", "3"], correct: 3, exp: "Selon Marc, trois femmes allèrent au tombeau : Marie-Madeleine, Marie mère de Jacques, et Salomé." },
+    { q: "Quel est le nom du grand-père paternel de Jésus selon Matthieu 1 ?", ref: "Matthieu 1:15-16", choix: ["Éléazar", "Mattan", "Jacob", "Matthat"], correct: 2, exp: "Selon Matthieu 1:16, Jacob était le père de Joseph, l'époux de Marie." },
+    { q: "Dans quel chapitre d'Ésaïe trouve-t-on la vocation du prophète avec les séraphins ?", ref: "Ésaïe 6", choix: ["Ésaïe 1", "Ésaïe 6", "Ésaïe 40", "Ésaïe 53"], correct: 1, exp: "Ésaïe 6 décrit la vision du prophète : il vit le Seigneur sur son trône, entouré de séraphins." },
+    { q: "Combien de jours dura le déluge selon Genèse 7 ?", ref: "Genèse 7:12", choix: ["20 jours", "30 jours", "40 jours", "100 jours"], correct: 2, exp: "La pluie tomba sur la terre pendant 40 jours et 40 nuits lors du déluge au temps de Noé." },
+    { q: "Quel apôtre écrivit depuis l'île de Pathmos ?", ref: "Apocalypse 1:9", choix: ["Paul", "Pierre", "Jacques", "Jean"], correct: 3, exp: "Jean reçut la révélation de l'Apocalypse alors qu'il était exilé sur l'île de Pathmos." },
+    { q: "Comment s'appelait le serviteur d'Abraham envoyé chercher une femme pour Isaac ?", ref: "Genèse 24:2", choix: ["Éliézer", "Lot", "Agar", "Ismaël"], correct: 0, exp: "Éliézer, le plus ancien serviteur d'Abraham, voyagea en Mésopotamie et trouva Rébecca pour Isaac." },
+    { q: "Quelle était la profession de Luc, auteur du 3e évangile ?", ref: "Colossiens 4:14", choix: ["Pêcheur", "Médecin", "Charpentier", "Percepteur"], correct: 1, exp: "Paul appelle Luc 'le bien-aimé médecin' dans sa lettre aux Colossiens (4:14)." },
+    { q: "Quel roi vit une main qui écrivait sur le mur lors d'un festin ?", ref: "Daniel 5", choix: ["Nebucadnetsar", "Cyrus", "Darius", "Belschatsar"], correct: 3, exp: "Belschatsar vit une main écrire 'Mené, Mené, Téqel, Oupharsin' sur le mur. Daniel en donna l'interprétation." },
+    { q: "Quelle tribu d'Israël n'eut pas de territoire en Canaan ?", ref: "Nombres 18:20", choix: ["Juda", "Dan", "Lévi", "Siméon"], correct: 2, exp: "La tribu de Lévi ne reçut pas de territoire propre car Dieu lui-même était son héritage. Elle vivait des offrandes." },
+    { q: "Combien de pierres précieuses ornaient le pectoral du grand sacrificateur ?", ref: "Exode 28:17-21", choix: ["7", "10", "12", "24"], correct: 2, exp: "Le pectoral portait 12 pierres précieuses, une pour chacune des 12 tribus d'Israël." },
+    { q: "Quel est le nom hébreu du livre des Lamentations ?", ref: "Tradition hébraïque", choix: ["Shir Hashirim", "Ekhah", "Qohéleth", "Bereshit"], correct: 1, exp: "En hébreu, les Lamentations sont appelées 'Ekhah' (hélas !), le premier mot du livre." },
+    { q: "Combien d'années Mathusalem a-t-il vécu selon la Genèse ?", ref: "Genèse 5:27", choix: ["777 ans", "900 ans", "969 ans", "1000 ans"], correct: 2, exp: "Mathusalem vécut 969 ans, ce qui en fait le personnage biblique ayant vécu le plus longtemps." },
+    { q: "Quel est le nom de la femme de Lot qui se transforma en statue de sel ?", ref: "Genèse 19:26", choix: ["Edna", "La Bible ne le mentionne pas", "Sara", "Rébecca"], correct: 1, exp: "La Bible ne donne pas de nom à la femme de Lot. Elle se retourna malgré l'avertissement et devint une statue de sel." },
+    { q: "Quel nombre symbolique revient le plus souvent dans l'Apocalypse ?", ref: "Apocalypse", choix: ["3", "6", "10", "7"], correct: 3, exp: "Le chiffre 7 est omniprésent dans l'Apocalypse : 7 Églises, 7 sceaux, 7 trompettes, 7 coupes." },
+    { q: "Quel prophète épousa une femme infidèle sur ordre de Dieu pour illustrer l'infidélité d'Israël ?", ref: "Osée 1:2", choix: ["Ézéchiel", "Jérémie", "Amos", "Osée"], correct: 3, exp: "Dieu ordonna au prophète Osée d'épouser Gomer, une femme adultère, pour symboliser l'infidélité d'Israël envers Dieu." },
+    { q: "Dans quel ordre Dieu créa-t-il les luminaires selon Genèse 1 ?", ref: "Genèse 1:14-19", choix: ["Jour 3", "Jour 5", "Jour 6", "Jour 4"], correct: 3, exp: "Dieu créa le soleil, la lune et les étoiles le 4e jour de la création." },
+  ]
+};
+
+// Suivi des questions déjà posées par niveau
+var usedIndexes = { facile: [], intermediaire: [], difficile: [] };
+
+let currentLevel = 'facile';
+let questions = [];
+let currentQ = 0;
+let score = 0;
+let timer = null;
+let timeLeft = 20;
+let answered = false;
+
+function selectLevel(lvl) {
+  currentLevel = lvl;
+  document.querySelectorAll('.level-card').forEach(c => c.classList.remove('active'));
+  document.querySelector('[data-level="' + lvl + '"]').classList.add('active');
+}
+
+function startGame() {
+  var pool = ALL_QUESTIONS[currentLevel];
+  // Si toutes les questions ont été posées, on réinitialise
+  if (usedIndexes[currentLevel].length >= pool.length) {
+    usedIndexes[currentLevel] = [];
+  }
+  // Prendre 10 questions non encore posées
+  var available = pool.map(function(_, i) { return i; })
+    .filter(function(i) { return usedIndexes[currentLevel].indexOf(i) === -1; });
+  var picked = shuffle(available).slice(0, 10);
+  // Marquer ces questions comme utilisées
+  picked.forEach(function(i) { usedIndexes[currentLevel].push(i); });
+  questions = picked.map(function(i) { return pool[i]; });
+  currentQ = 0; score = 0; answered = false;
+  document.getElementById('screen-home').style.display = 'none';
+  document.getElementById('screen-game').style.display = 'block';
+  document.getElementById('screen-results').style.display = 'none';
+  showQuestion();
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function showQuestion() {
+  answered = false;
+  const q = questions[currentQ];
+  const total = questions.length;
+
+  document.getElementById('q-info').textContent = 'Question ' + (currentQ + 1) + ' / ' + total;
+  document.getElementById('score-badge').textContent = 'Score : ' + score;
+  document.getElementById('progress-fill').style.width = Math.round((currentQ / total) * 100) + '%';
+
+  const pillEl = document.getElementById('level-pill');
+  const pillClass = { facile: 'pill-facile', intermediaire: 'pill-intermediaire', difficile: 'pill-difficile' }[currentLevel];
+  const pillLabel = { facile: '🌱 Facile', intermediaire: '📖 Intermédiaire', difficile: '🔥 Difficile' }[currentLevel];
+  pillEl.innerHTML = '<span class="level-pill ' + pillClass + '">' + pillLabel + '</span>';
+
+  document.getElementById('question-text').textContent = q.q;
+  document.getElementById('question-ref').textContent = q.ref || '';
+  document.getElementById('explication').style.display = 'none';
+  document.getElementById('btn-next').style.display = 'none';
+
+  const letters = ['A', 'B', 'C', 'D'];
+  const choicesEl = document.getElementById('choices');
+  choicesEl.innerHTML = '';
+  q.choix.forEach(function(c, i) {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.setAttribute('data-index', i);
+    btn.innerHTML = '<span class="choice-letter">' + letters[i] + '</span>' + c;
+    btn.onclick = function() { answer(i); };
+    choicesEl.appendChild(btn);
+  });
+
+  startTimer();
+}
+
+function startTimer() {
+  clearInterval(timer);
+  timeLeft = 20;
+  updateTimer();
+  timer = setInterval(function() {
+    timeLeft--;
+    updateTimer();
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      if (!answered) { timeUp(); }
+    }
+  }, 1000);
+}
+
+function updateTimer() {
+  document.getElementById('timer-num').textContent = timeLeft;
+  const pct = Math.round((timeLeft / 20) * 100);
+  const fill = document.getElementById('timer-fill');
+  fill.style.width = pct + '%';
+  if (timeLeft <= 5) fill.classList.add('urgent');
+  else fill.classList.remove('urgent');
+}
+
+function timeUp() {
+  answered = true;
+  const q = questions[currentQ];
+  document.querySelectorAll('.choice-btn').forEach(function(btn) {
+    btn.disabled = true;
+    if (parseInt(btn.getAttribute('data-index')) === q.correct) btn.classList.add('correct');
+  });
+  document.getElementById('explication').textContent = '⏱ Temps écoulé ! ' + q.exp;
+  document.getElementById('explication').style.display = 'block';
+  const nextBtn = document.getElementById('btn-next');
+  nextBtn.textContent = currentQ + 1 < questions.length ? 'Question suivante →' : 'Voir mes résultats →';
+  nextBtn.style.display = 'block';
+}
+
+function answer(chosen) {
+  if (answered) return;
+  answered = true;
+  clearInterval(timer);
+  const q = questions[currentQ];
+
+  document.querySelectorAll('.choice-btn').forEach(function(btn) {
+    btn.disabled = true;
+    const idx = parseInt(btn.getAttribute('data-index'));
+    if (idx === q.correct) btn.classList.add('correct');
+    else if (idx === chosen) btn.classList.add('wrong');
+  });
+
+  if (chosen === q.correct) score++;
+  document.getElementById('score-badge').textContent = 'Score : ' + score;
+
+  document.getElementById('explication').textContent = q.exp;
+  document.getElementById('explication').style.display = 'block';
+  const nextBtn = document.getElementById('btn-next');
+  nextBtn.textContent = currentQ + 1 < questions.length ? 'Question suivante →' : 'Voir mes résultats →';
+  nextBtn.style.display = 'block';
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= questions.length) { showResults(); return; }
+  showQuestion();
+}
+
+function showResults() {
+  clearInterval(timer);
+  document.getElementById('screen-game').style.display = 'none';
+  document.getElementById('screen-results').style.display = 'block';
+  const total = questions.length;
+  const pct = score / total;
+  let trophy, title, msg, verse, stars;
+  if (pct === 1) { trophy='🏆'; title='Parfait !'; msg='Tu connais la Bible comme ta poche. Tu es vraiment béni(e) !'; verse='"Ta parole est une lampe à mes pieds, et une lumière sur mon sentier." — Psaume 119:105'; stars='⭐⭐⭐⭐⭐'; }
+  else if (pct >= 0.8) { trophy='🌟'; title='Excellent !'; msg='Tu as une belle connaissance des Écritures. Continue ainsi !'; verse='"Heureux ceux qui écoutent la parole de Dieu et qui la gardent !" — Luc 11:28'; stars='⭐⭐⭐⭐'; }
+  else if (pct >= 0.6) { trophy='📖'; title='Bien joué !'; msg='Tu maîtrises bien la Bible. Quelques révisions et tu atteins le sommet !'; verse='"Étudiez les Écritures, car vous pensez avoir en elles la vie éternelle." — Jean 5:39'; stars='⭐⭐⭐'; }
+  else if (pct >= 0.4) { trophy='✝️'; title='Bon début !'; msg='La Bible est un trésor à explorer. Chaque lecture te rapproche de Dieu.'; verse='"La foi vient de ce qu\'on entend, et ce qu\'on entend vient de la parole de Christ." — Romains 10:17'; stars='⭐⭐'; }
+  else { trophy='🙏'; title='Continue !'; msg='Ne te décourage pas ! C\'est en lisant et relisant la Parole que la sagesse vient.'; verse='"Recherchez d\'abord le royaume de Dieu et sa justice." — Matthieu 6:33'; stars='⭐'; }
+
+  document.getElementById('trophy').textContent = trophy;
+  document.getElementById('stars-row').textContent = stars;
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-score').textContent = score + ' / ' + total;
+  document.getElementById('result-msg').textContent = msg;
+  document.getElementById('result-verse').textContent = verse;
+}
+
+function resetGame() {
+  document.getElementById('screen-results').style.display = 'none';
+  document.getElementById('screen-home').style.display = 'block';
+}
+</script>
+</body>
+</html>
